@@ -1,68 +1,115 @@
 ﻿import React from 'react'
 import Card from '../components/card'
 import FormGroup from '../components/form-group'
+import { withRouter } from 'react-router-dom' /** cria a props historiy dentre outras*/
 
+import UsuarioService from '../app/service/usuarioService'
+import LocalStorageService from '../app/service/localStorageService'
+import { mensagemErro } from '../components/toastr'
+
+import { AuthContext } from '../main/provedorAutenticacao'
+
+/** Os componentes possuem os atributos nativo: props, states, context etc..
+ *  que podem ser passados como parametros e acessados por outros componentes
+ */
 class Login extends React.Component {
 
-    state = {
-        email: '',
-        senha: ''
+
+     state = {
+            email: '',
+            senha: '',
+            
+     }
+
+     constructor(){
+         super();
+         this.service = new UsuarioService();
+     }
+  
+
+    entrar = async () => {
+       
+       this.service.autenticar({
+            email: this.state.email,
+            senha: this.state.senha
+
+        }).then(response => {
+            //LocalStorageService.adicionarItem('_usuario_logado', response.data)
+            this.context.iniciarSessao(response.data)
+            this.props.history.push("/home")
+
+        }).catch(erro => {
+            console.log('entrou no erro')
+            mensagemErro(erro.response.data)
+
+        })
+     
     }
 
-   entrar = () =>{
-       console.log('email: ', this.state.email)
-       console.log('senha: ', this.state.senha)
-   }
-
+    prepareCadastrar = () => {
+        this.props.history.push('/cadastro-usuarios')
+    }
 
     render() {
         return (
-            <div className="container">
-                <div className="row">
-                    <div className="col-md-6" style={ { position: "relative", left: "300px" } }>
-                        <div className="bs-docs-section">
-                            <Card title="Login">
-                                <div className="row">
-                                    <div className="col-lg-12">
-                                        <div className="bs-component">
-                                            <fieldset>
-                                                <FormGroup label="Email: *"  htmlFor="exampleInputEmail1">
-                                                 <input type="email"
-                                                        value={this.state.email}
-                                                        onChange={ e => this.setState({ email: e.target.value })}
-                                                        className="form-control"
-                                                        id="exampleInputEmail1"
-                                                        aria-describedby="emailHelp"
-                                                        placeholder="Digite o Email"/>
-                                                </FormGroup>
-                                                <FormGroup label="Senha: *"  htmlFor="exampleInputexampleInputPassword1Email1">
-                                                 <input type="password"
-                                                        valeu={this.state.senha}
-                                                        onChange={e => this.setState({ senha: e.target.senha }) }
-                                                        className="form-control"
-                                                        placeholder="Digite o Email"
-                                                        id="exampleInputPassword1"/>
-                                                </FormGroup>
-                                                <button onClick={this.entrar} className="btn btn-success">Entrar</button>
-                                                <button className="btn btn-danger">Cadastrar</button>
 
-                                            </fieldset>
-                                        </div>
+            <div className="row">
+                <div className="col-md-6" style={ { position: "relative", left: "300px" } }>
+                    <div className="bs-docs-section">
+                        <Card title="Login">
+                           <div className="row">
+                                <div className="col-lg-12">
+                                    <div className="bs-component">
+                                        <fieldset>
+                                            <FormGroup label="Email: *" htmlFor="exampleInputEmail1">
+                                                <input type="email"
+                                                    value={ this.state.email }
+                                                    onChange={ e => this.setState({ email: e.target.value }) }
+                                                    className="form-control"
+                                                    id="exampleInputEmail1"
+                                                    aria-describedby="emailHelp"
+                                                    placeholder="Digite o Email" />
+                                            </FormGroup>
+                                            <FormGroup label="Senha: *" htmlFor="exampleInputPassword1">
+                                                <input type="password"
+                                                    value={ this.state.senha }
+                                                    onChange={ e => this.setState({ senha: e.target.value }) }
+                                                    className="form-control"
+                                                    id="exampleInputPassword1"
+                                                    placeholder="Password" />
+                                            </FormGroup>
+                                            <button onClick={ this.entrar } 
+                                                    className="btn btn-success">
+                                                    <i className="pi pi-sign-in"></i> Entrar
+                                                    </button>
+                                            <button onClick={ this.prepareCadastrar } 
+                                                    className="btn btn-danger">
+                                                    <i className="pi pi-plus"></i> Cadastrar
+                                                    </button>
+
+                                        </fieldset>
                                     </div>
                                 </div>
+                            </div>
 
 
-                            </Card>
-                        </div>
-
+                        </Card>
                     </div>
-                </div>
 
+                </div>
             </div>
+
+
         )
     }
 
 
 }
 
-export default Login
+// se increva no contexto da aplicacao, essa forma somente funciona para componentes de classes
+// obtendo assim acesso ao state e metodos globais da app. (classe provedor de autenticacao)
+Login.contextType = AuthContext 
+
+
+// withRouter - insere outras funcionalidades "rotas" ao componente login
+export default withRouter(Login) 
