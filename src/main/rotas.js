@@ -38,16 +38,21 @@ function RotaAutenticada( { component: Component, isUsuarioAutenticado,...props 
 function Rotas(props){
 
     return(
-        /** path="/cadastro-lancamentos/:id?" - O ? informa que na url pode ou nao ser passado um parametro*/
+        /** path="/cadastro-lancamentos/:id?" - O ? informa que na url pode ou nao ser passado um parametro
+         *  Nota: Para acessar o componente Home precisar estar logado, logo se for direto para raiz(Home)
+         *  e nao estiver logado, sera redirecionado para a pagina de login
+        */
+
         <HashRouter>
             
             <Switch>
-                <Route path="/login" component={Login} />
-                <Route path="/cadastro-usuarios" component={CadastroUsuario} />
-                 
-                <RotaAutenticada isUsuarioAutenticado={props.isUsuarioAutenticado} path="/home" component={Home} />
-                <RotaAutenticada isUsuarioAutenticado={props.isUsuarioAutenticado} path="/consulta-lancamentos" component={ConsultaLancamentos} />
-                <RotaAutenticada isUsuarioAutenticado={props.isUsuarioAutenticado} path="/cadastro-lancamentos/:id?" component={CadastroLancamentos} />
+                <Route exact  path="/login" component={Login} />
+                <Route exact path="/cadastro-usuarios" component={CadastroUsuario} />
+
+                <RotaAutenticada exact isUsuarioAutenticado={props.isUsuarioAutenticado} path="/" component={Home} />    
+                <RotaAutenticada exact isUsuarioAutenticado={props.isUsuarioAutenticado} path="/home" component={Home} />  
+                <RotaAutenticada exact isUsuarioAutenticado={props.isUsuarioAutenticado} path="/consulta-lancamentos" component={ConsultaLancamentos} />
+                <RotaAutenticada exact isUsuarioAutenticado={props.isUsuarioAutenticado} path="/cadastro-lancamentos/:id?" component={CadastroLancamentos} />
             </Switch>
         </HashRouter>
     )
